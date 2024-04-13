@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Matrix Multiplication Calculator</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f4f4f4;
+        }
+
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            background-color: #ffffff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .matrix-input {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .matrix-row {
+            display: flex;
+            gap: 10px;
+        }
+
+        .matrix-input input {
+            width: 60px;
+            padding: 5px;
+            text-align: center;
+        }
+
+        button {
+            padding: 10px 20px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        button:hover {
+            background-color: #0056b3;
+        }
+
+        #result {
+            margin-top: 20px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: center;
+        }
+
+        th {
+            background-color: #f2f2f2;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>Matrix Multiplication Calculator</h2>
+        
+        <div class="matrix-input">
+            <label>Matrix A</label>
+            <div id="matrixA"></div>
+        </div>
+
+        <div class="matrix-input">
+            <label>Matrix B</label>
+            <div id="matrixB"></div>
+        </div>
+
+        <button onclick="multiplyMatrices()">Multiply</button>
+
+        <div id="result"></div>
+    </div>
+
+    <script>
+        function createMatrixInput(id, rows, cols) {
+            const matrixDiv = document.getElementById(id);
+            matrixDiv.innerHTML = '';
+
+            for (let i = 0; i < rows; i++) {
+                const rowDiv = document.createElement('div');
+                rowDiv.className = 'matrix-row';
+
+                for (let j = 0; j < cols; j++) {
+                    const input = document.createElement('input');
+                    input.type = 'number';
+                    input.placeholder = `${i + 1},${j + 1}`;
+                    rowDiv.appendChild(input);
+                }
+
+                matrixDiv.appendChild(rowDiv);
+            }
+        }
+
+        function getMatrixValues(id, rows, cols) {
+            const matrixDiv = document.getElementById(id);
+            const matrix = [];
+
+            for (let i = 0; i < rows; i++) {
+                const row = [];
+                const rowDiv = matrixDiv.children[i];
+
+                for (let j = 0; j < cols; j++) {
+                    const input = rowDiv.children[j];
+                    row.push(Number(input.value));
+                }
+
+                matrix.push(row);
+            }
+
+            return matrix;
+        }
+
+        function multiplyMatrices() {
+            const rowsA = parseInt(prompt('Enter the number of rows for Matrix A:'));
+            const colsA = parseInt(prompt('Enter the number of columns for Matrix A:'));
+            const rowsB = parseInt(prompt('Enter the number of rows for Matrix B:'));
+            const colsB = parseInt(prompt('Enter the number of columns for Matrix B:'));
+
+            if (colsA !== rowsB) {
+                alert('Number of columns in Matrix A must equal the number of rows in Matrix B.');
+                return;
+            }
+
+            createMatrixInput('matrixA', rowsA, colsA);
+            createMatrixInput('matrixB', rowsB, colsB);
+
+            const resultDiv = document.getElementById('result');
+            resultDiv.innerHTML = '';
+
+            const button = document.createElement('button');
+            button.textContent = 'Calculate';
+            button.onclick = function() {
+                const matrixA = getMatrixValues('matrixA', rowsA, colsA);
+                const matrixB = getMatrixValues('matrixB', rowsB, colsB);
+
+                const result = multiply(matrixA, matrixB);
+
+                displayResult(result);
+            };
+
+            resultDiv.appendChild(button);
+        }
+
+        function multiply(matrixA, matrixB) {
+            const rowsA = matrixA.length;
+            const colsA = matrixA[0].length;
+            const rowsB = matrixB.length;
+            const colsB = matrixB[0].length;
+
+            const result = new Array(rowsA).fill(0).map(() => new Array(colsB).fill(0));
+
+            for (let i = 0; i < rowsA; i++) {
+                for (let j = 0; j < colsB; j++) {
+                    for (let k = 0; k < colsA; k++) {
+                        result[i][j] += matrixA[i][k] * matrixB[k][j];
+                    }
+                }
+            }
+
+            return result;
+        }
+
+        function displayResult(result) {
+            const resultDiv = document.getElementById('result');
+            resultDiv.innerHTML = '';
+
+            const table = document.createElement('table');
+            const thead = document.createElement('thead');
+            const tbody = document.createElement('tbody');
+
+            const headerRow = document.createElement('tr');
+            for (let j = 0; j < result[0].length; j++) {
+                const th = document.createElement('th');
+                th.textContent = `C${j + 1}`;
+                headerRow.appendChild(th);
+            }
+            thead.appendChild(headerRow);
+
+            for (let i = 0; i < result.length; i++) {
+                const row = document.createElement('tr');
+                for (let j = 0; j < result[i].length; j++) {
+                    const td = document.createElement('td');
+                    td.textContent = result[i][j];
+                    row.appendChild(td);
+                }
+                tbody.appendChild(row);
+            }
+
+            table.appendChild(thead);
+            table.appendChild(tbody);
+            resultDiv.appendChild(table);
+        }
+
+        // Initialize with default 2x2 matrices
+        createMatrixInput('matrixA', 2, 2);
+        createMatrixInput('matrixB', 2, 2);
+    </script>
+</body>
+</html>
